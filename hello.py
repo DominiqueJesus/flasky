@@ -1,33 +1,45 @@
 import flask as fk
+from flask import render_template
+from flask_bootstrap import Bootstrap
+from flask_moment import Moment
+from datetime import datetime
 
 app = fk.Flask(__name__)
 
+bootstrap = Bootstrap(app)
+moment = Moment(app)
+
 # Rota principal
 
-@app.route('/')
+@app.route('/'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
 def index():
 
-    text1 = '<h1>Hello World!</h1>'
-    text2 = '<h2>Disciplina PTBDSWS</h2>'
-
-    return text1 + text2
+    return render_template('index.html', current_time=datetime.utcnow())
 
 
 # Rota dinâmica
 
-@app.route('/user/<name>')
-def hello_user(name):
-    return f'<h1>Hello, {name}!</h1>'
+@app.route('/user/<name>/<prontuario>/<instituicao>')
+def hello_user(name, prontuario, instituicao):
+
+    return render_template('user.html', name=name, prontuario=prontuario, instituicao=instituicao)
 
 
 # Contexto da requisição
 
-@app.route('/contextorequisicao')
-def requisicao_ctx():
+@app.route('/contextorequisicao/<name>')
+def requisicao_ctx(name):
 
     user_browser = fk.request.headers.get('User-Agent')
+    user_IP = fk.request.headers.get('X-Forwarded-For')
+    app_host = fk.request.headers.get('Host')
 
-    return f'Your browser is {user_browser}'
+    return render_template('contexto.html',
+                            name=name,
+                            user_browser=user_browser,
+                            user_IP=user_IP,
+                            app_host=app_host
+                            )
 
 
 # Código de status do servidor

@@ -3,22 +3,34 @@ from flask import render_template
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
+from flask_wtf import FlaskForm
+from wtforms import StringField. SubmitField
+from wtforms.validators import DataRequired
 
 app = fk.Flask(__name__)
+app.config['SECRET_KEY'] = 'Chave forte'
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
 # Rota principal
+@app.route('/')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
+def index():
+    
+    class Formulario(FlaskForm):
+        nome = StringField("What is yout name?", validators=DataRequired)
+        btnEnviar = SubmitField('Submit')
 
-@app.route('/'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
+    return render_template('formulario.html', nome=nome)
+
+# Rota principal
+@app.route('/atualizacao')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
 def index():
 
     return render_template('index.html', current_time=datetime.utcnow())
 
 
 # Rota dinâmica
-
 @app.route('/user/<name>/<prontuario>/<instituicao>')
 def hello_user(name, prontuario, instituicao):
 
@@ -26,7 +38,6 @@ def hello_user(name, prontuario, instituicao):
 
 
 # Contexto da requisição
-
 @app.route('/contextorequisicao/<name>')
 def requisicao_ctx(name):
 
@@ -34,16 +45,16 @@ def requisicao_ctx(name):
     user_IP = fk.request.headers.get('X-Forwarded-For')
     app_host = fk.request.headers.get('Host')
 
-    return render_template('contexto.html',
-                            name=name,
-                            user_browser=user_browser,
-                            user_IP=user_IP,
-                            app_host=app_host
-                            )
+    return render_template(
+            'contexto.html',
+            name=name,
+            user_browser=user_browser,
+            user_IP=user_IP,
+            app_host=app_host
+        )
 
 
 # Código de status do servidor
-
 @app.route('/codigostatusdiferente')
 def requisicao_indevida():
 
@@ -51,7 +62,6 @@ def requisicao_indevida():
 
 
 # Criar objeto de resposta
-
 @app.route('/objetoresposta')
 def obj_resposta():
 
@@ -63,7 +73,6 @@ def obj_resposta():
 
 
 # Redirecionar para outro site
-
 @app.route('/redirecionamento')
 def redirecionar():
 
@@ -71,7 +80,6 @@ def redirecionar():
 
 
 # Abortar função de view
-
 @app.route('/abortar')
 def abortar_site():
 

@@ -10,22 +10,30 @@ from wtforms.validators import DataRequired
 app = fk.Flask(__name__)
 app.config['SECRET_KEY'] = 'Chave forte'
 
+class Formulario(FlaskForm):
+    nome = StringField("What is yout name?", validators=DataRequired)
+    btnEnviar = SubmitField('Submit')
+
+
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
 # Rota principal
-@app.route('/')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
+@app.route('/', methods=['GET', 'POST'])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
 def index():
-    
-    class Formulario(FlaskForm):
-        nome = StringField("What is yout name?", validators=DataRequired)
-        btnEnviar = SubmitField('Submit')
 
-    return render_template('formulario.html', nome=nome)
+    form = Forumlario()
+    nome = None
+
+    if form.validate_on_submit():
+        session['nome'] = form.name.data
+        return reduirect(url_form('index'))
+    
+    return render_template('formulario.html', nome=nome, form=form)
 
 # Rota principal
 @app.route('/atualizacao')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
-def index():
+def ultAtualizacao():
 
     return render_template('index.html', current_time=datetime.utcnow())
 

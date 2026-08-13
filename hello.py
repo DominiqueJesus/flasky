@@ -1,49 +1,55 @@
 import flask as fk
-from flask import render_template
+import wtforms as wf
+import wtforms.validators as wtv
+
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from datetime import datetime
 from flask_wtf import FlaskForm
-from wtforms import StringField. SubmitField
-from wtforms.validators import DataRequired
+from datetime import datetime, timezone
 
+# Inicialização
 app = fk.Flask(__name__)
-app.config['SECRET_KEY'] = 'Chave forte'
-
-class Formulario(FlaskForm):
-    nome = StringField("What is yout name?", validators=DataRequired)
-    btnEnviar = SubmitField('Submit')
-
-
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
+# Chave Secreta
+app.config['SECRET_KEY'] = 'Chave forte'
+
+# Formulario Flask
+class Formulario(FlaskForm):
+    nome = wf.StringField("What is yout name?", validators=[wtv.DataRequired()])
+    enviar = wf.SubmitField('Submit')
+
+
 # Rota principal
-@app.route('/')                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
+@app.route('/')
 def index():
 
-    return render_template('index.html', current_time=datetime.utcnow())
+    return fk.render_template('index.html', current_time=datetime.now(timezone.utc))
 
 
 # Formulário
-@app.route('/', methods=['GET', 'POST'])                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      )
+@app.route('/formulario', methods=['GET', 'POST'])
 def forms():
 
     form = Formulario()
     nome = None
 
     if form.validate_on_submit():
-        session['nome'] = form.name.data
-        return redirect(url_form('forms'))
+        nomeAntigo = fk.session.get('nome')
+        if nomeAntigo is not None and nomeAntigo != form.nome.data:
+            fk.flash('Looks like you have changed your name!')
+        fk.session['nome'] = form.nome.data
+        return fk.redirect(fk.url_for('forms'))
     
-    return render_template('formulario.html', nome=session.get('nome'), form=form)
+    return fk.render_template('formulario.html', nome=fk.session.get('nome'), form=form)
 
 
 # Rota dinâmica
 @app.route('/user/<name>/<prontuario>/<instituicao>')
 def hello_user(name, prontuario, instituicao):
 
-    return render_template('user.html', name=name, prontuario=prontuario, instituicao=instituicao)
+    return fk.render_template('user.html', name=name, prontuario=prontuario, instituicao=instituicao)
 
 
 # Contexto da requisição
@@ -54,7 +60,7 @@ def requisicao_ctx(name):
     user_IP = fk.request.headers.get('X-Forwarded-For')
     app_host = fk.request.headers.get('Host')
 
-    return render_template(
+    return fk.render_template(
             'contexto.html',
             name=name,
             user_browser=user_browser,

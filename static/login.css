@@ -1,0 +1,44 @@
+/* Define o espaço e o fundo da página de login. */
+.login-page {
+    min-height: 70vh;
+    padding: 48px 15px;
+    background: #f4f7fb;
+}
+
+/* Cria a caixa branca que envolve o formulário. */
+.login-card {
+    max-width: 420px;
+    margin: 0 auto; 
+    padding: 32px;
+    background: #ffffff;
+    border: 1px solid #dce5f0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(31, 55, 86, 0.12);
+}
+
+/* Mantém os campos com uma altura e bordas uniformes. */
+.login-card .form-control {
+    height: 44px;
+}
+
+/* Define o tamanho, a cor e o espaçamento do botão de envio. */
+.login-card .btn-login {
+    margin-top: 12px;
+    background-color: #1769d1;
+    border-color: #1769d1;
+    color: #ffffff;
+}
+
+/* Escurece o botão quando o usuário passa o mouse ou navega por teclado. */
+.login-card .btn-login:hover,
+.login-card .btn-login:focus {
+    background-color: #1255a8;
+    border-color: #1255a8;
+    color: #ffffff;
+}
+
+/* Mantém as informações do Moment afastadas do card de login. */
+.page-content {
+    margin-top: 40px;
+    font-size: 13px;
+}

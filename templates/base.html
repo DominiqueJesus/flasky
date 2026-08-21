@@ -6,6 +6,7 @@
     {{ super() }}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 {% endblock %}
 
 {% block navbar %}
@@ -23,6 +24,7 @@
                     <li><a href="/user/Fabio Teixeira/PT23820X/IFSP">Identificação</a></li>
                     <li><a href="/contextorequisicao/Fabio Teixeira">Contexto da requisição</a></li>
                     <li><a href="/formulario    ">Formulário</a></li>
+                    <li><a href="/login   ">Login</a></li>
                 </ul>
             </div>
         </div>

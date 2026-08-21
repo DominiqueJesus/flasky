@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% import "bootstrap/wtf.html" as wt %}
+
+{% block page_content %}
+
+
+        {# Caixa visual que agrupa o título, o formulário e as informações de data. #}
+        <div class="login-card">
+            <h2>Login:</h2>
+
+            {# Envia os dados do formulário usando o método POST. #}
+            <form method="POST">
+                {# Gera o token CSRF e outros campos ocultos do Flask-WTF. #}
+                {{ login.hidden_tag() }}
+                
+                {# Exibe o rótulo e o campo de usuário com as classes do Bootstrap. #}
+                {{ login.usuario.label(class="control-label") }}
+                {{ login.usuario(class="form-control") }}
+
+                {# Mostra mensagens de erro geradas pela validação do usuário. #}
+                {% for error in login.usuario.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+
+                {# Exibe o rótulo e o campo de senha com as classes do Bootstrap. #}
+                {{ login.senha.label(class="control-label") }}
+                {{ login.senha(class="form-control") }}
+
+                {# Mostra mensagens de erro geradas pela validação da senha. #}
+                {% for error in login.senha.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+
+                {# Renderiza o botão de envio com a classe visual personalizada. #}
+                {{ login.enviar(class="btn btn-login") }}
+
+            </form>
+        </div>
+
+            {# Exibe a data e o tempo relativo usando a extensão Flask-Moment. #}
+            <div class="page-content">
+                <p>The local date and time is {{ moment(current_time).format('LLL') }}.</p>
+                <p>That was {{ moment(current_time).fromNow(refresh=True) }}.</p>
+            </div>
+
+{% endblock %}

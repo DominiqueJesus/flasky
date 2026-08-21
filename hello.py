@@ -20,6 +20,15 @@ class Formulario(FlaskForm):
     nome = wf.StringField("What is yout name?", validators=[wtv.DataRequired()])
     enviar = wf.SubmitField('Submit')
 
+class Login(FlaskForm):
+    usuario = wf.StringField('', validators=[wtv.DataRequired()], 
+                             render_kw={"placeholder": "Usuário ou e-mail"}
+                            )
+    senha = wf.PasswordField('', validators=[wtv.DataRequired()], 
+                             render_kw={"placeholder": "Informe a sua senha"}
+                            )
+    enviar = wf.SubmitField('Enviar')
+
 
 # Rota principal
 @app.route('/')
@@ -27,6 +36,28 @@ def index():
 
     return fk.render_template('index.html', current_time=datetime.now(timezone.utc))
 
+# Login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+
+    login = Login()
+    current_time = datetime.now(timezone.utc)
+
+    if login.validate_on_submit():
+        fk.session['usuario'] = login.usuario.data
+
+        return fk.redirect('/loginResponse')
+    
+    return fk.render_template('login.html', login=login, current_time=current_time)
+
+# Retorno do login
+@app.route('/loginResponse')
+def loginResponse():
+
+    usuario = fk.session.get('usuario')
+    current_time = datetime.now(timezone.utc)
+
+    return fk.render_template('loginResponse.html', current_time=current_time, usuario=usuario)
 
 # Formulário
 @app.route('/formulario', methods=['GET', 'POST'])
@@ -99,4 +130,6 @@ def redirecionar():
 def abortar_site():
 
     return fk.abort(404)
+
+
 

@@ -15,7 +15,7 @@ moment = Moment(app)
 # Chave Secreta
 app.config['SECRET_KEY'] = 'Chave forte'
 
-# Formulario Flask
+# Formularios Flask
 class Formulario(FlaskForm):
     nome = wf.StringField("What is yout name?", validators=[wtv.DataRequired()])
     enviar = wf.SubmitField('Submit')
@@ -30,11 +30,53 @@ class Login(FlaskForm):
     enviar = wf.SubmitField('Enviar')
 
 
+class Main(FlaskForm):
+    nome = wf.StringField("Informe o seu nome:", validators=[wtv.DataRequired()])
+
+    sobrenome = wf.StringField("Informe o seu sobrenome:", validators=[wtv.DataRequired()])
+
+    instituicao = wf.StringField("Informe a sua Insituição de ensino:", validators=[wtv.DataRequired()])
+
+    disciplina = wf.SelectField(
+        "Informe a sua disciplina:",
+        choices=[("DSWA5", "DSWA5"), ("DWBA4", "DWBA4"), ("Gestão de Projetos", "Gestão de Projetos")],
+        validators=[wtv.DataRequired()]
+    )
+
+    enviar = wf.SubmitField('Submit')
+
+
 # Rota principal
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
 
-    return fk.render_template('index.html', current_time=datetime.now(timezone.utc))
+    main = Main()
+    current_time = datetime.now(timezone.utc)
+    user_IP = fk.request.headers.get('X-Forwarded-For')
+    app_host = fk.request.headers.get('Host')
+
+    if main.validate_on_submit():
+        nomeAntigo = fk.session.get('nome')
+        if nomeAntigo is not None and nomeAntigo != main.nome.data:
+            fk.flash("Você alterou o seu nome!")
+
+        fk.session['nome'] = main.nome.data
+        fk.session['sobrenome'] = main.sobrenome.data
+        fk.session['instituicao'] = main.instituicao.data
+        fk.session['disciplina'] = main.disciplina.data
+        
+        return fk.redirect(fk.url_for('index'))
+
+    return fk.render_template('index.html', 
+                              current_time=current_time, 
+                              main=main,
+                              nome=fk.session.get('nome'),
+                              sobrenome=fk.session.get('sobrenome'),
+                              instituicao=fk.session.get('instituicao'),
+                              disciplina=fk.session.get('disciplina'),
+                              app_host=app_host,
+                              user_IP=user_IP
+                              )
 
 # Login
 @app.route('/login', methods=['GET', 'POST'])

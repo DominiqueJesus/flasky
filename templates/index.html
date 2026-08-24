@@ -8,11 +8,13 @@
 
         <h1>Olá, {% if nome and sobrenome %}{{ nome }} {{ sobrenome }}{% else %}Estranho{% endif %}!</h1>
 
-        <h2>A sua Insituição de ensino é {{ instituicao }}</h2>
-        <h2>Está cursando a disciplina de {{ disciplina }}</h2>
-
-        <h3>O IP do computador remoto é: {{ user_IP }}</h3>
-        <h3>O host da aplicação é: {{ app_host }}</h3>
+        {% if nome and sobrenome and instituicao and disciplina %}
+            <h3>A sua Insituição de ensino é {{ instituicao }}</h3>
+            <h3>Está cursando a disciplina de {{ disciplina }}</h3>
+            <br>
+            <h4>O IP do computador remoto é: {{ user_IP }}</h4>
+            <h4>O host da aplicação é: {{ app_host }}</h4>
+        {% endif %}
 
     </div>
 

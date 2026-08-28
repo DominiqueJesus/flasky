@@ -1,3 +1,4 @@
+import os
 import flask as fk
 import wtforms as wf
 import wtforms.validators as wtv
@@ -6,11 +7,42 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
 from datetime import datetime, timezone
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
-# Inicialização
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 app = fk.Flask(__name__)
+app.config['SECRET_KEY'] = 'hard to guess string'
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+    'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    users = db.relationship('User', backref='role', lazy='dynamic')
+
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
 
 # Chave Secreta
 app.config['SECRET_KEY'] = 'Chave forte'
@@ -21,10 +53,10 @@ class Formulario(FlaskForm):
     enviar = wf.SubmitField('Submit')
 
 class Login(FlaskForm):
-    usuario = wf.StringField('', validators=[wtv.DataRequired()], 
+    usuario = wf.StringField('', validators=[wtv.DataRequired()],
                              render_kw={"placeholder": "Usuário ou e-mail"}
                             )
-    senha = wf.PasswordField('', validators=[wtv.DataRequired()], 
+    senha = wf.PasswordField('', validators=[wtv.DataRequired()],
                              render_kw={"placeholder": "Informe a sua senha"}
                             )
     enviar = wf.SubmitField('Enviar')
@@ -64,11 +96,11 @@ def index():
         fk.session['sobrenome'] = main.sobrenome.data
         fk.session['instituicao'] = main.instituicao.data
         fk.session['disciplina'] = main.disciplina.data
-        
+
         return fk.redirect(fk.url_for('index'))
 
-    return fk.render_template('index.html', 
-                              current_time=current_time, 
+    return fk.render_template('index.html',
+                              current_time=current_time,
                               main=main,
                               nome=fk.session.get('nome'),
                               sobrenome=fk.session.get('sobrenome'),
@@ -89,7 +121,7 @@ def login():
         fk.session['usuario'] = login.usuario.data
 
         return fk.redirect('/loginResponse')
-    
+
     return fk.render_template('login.html', login=login, current_time=current_time)
 
 # Retorno do login
@@ -114,7 +146,7 @@ def forms():
             fk.flash('Looks like you have changed your name!')
         fk.session['nome'] = form.nome.data
         return fk.redirect(fk.url_for('forms'))
-    
+
     return fk.render_template('formulario.html', nome=fk.session.get('nome'), form=form)
 
 

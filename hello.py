@@ -13,7 +13,7 @@ from flask_migrate import Migrate
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = fk.Flask(__name__)
-app.config['SECRET_KEY'] = 'hard to guess string'
+app.config['SECRET_KEY'] = 'they never gonna find out'
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -23,7 +23,7 @@ moment = Moment(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
+# Tabelas BD
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -62,7 +62,7 @@ class Login(FlaskForm):
     enviar = wf.SubmitField('Enviar')
 
 
-class Main(FlaskForm):
+class Cadastro(FlaskForm):
     nome = wf.StringField("Informe o seu nome:", validators=[wtv.DataRequired()])
 
     sobrenome = wf.StringField("Informe o seu sobrenome:", validators=[wtv.DataRequired()])
@@ -77,31 +77,60 @@ class Main(FlaskForm):
 
     enviar = wf.SubmitField('Submit')
 
+class Main(FlaskForm):
+    nome = wf.StringField('What is your name?', validators=[wtv.DataRequired()])
 
-# Rota principal
+    enviar = wf.SubmitField('Submit')
+
+
+# Rota Principal
 @app.route('/', methods=['GET', 'POST'])
 def index():
 
     main = Main()
+
+    if main.validate_on_submit():
+        user = User.query.filter_by(username=main.nome.data).first()
+
+        if user is None:
+            user = User(username=main.nome.data)
+            db.session.add(user)
+            db.session.commit()
+            fk.session['nome'] = main.nome.data
+            fk.session['known'] = False
+            
+        else:
+            fk.session['nome'] = main.nome.data
+            fk.session['known'] = True
+            
+        return fk.redirect(fk.url_for('index'))
+
+    return fk.render_template('index.html', nome=fk.session.get('nome'), known=fk.session.get('known'), main=main)
+
+# Cadastro
+@app.route('/cadastro', methods=['GET', 'POST'])
+def cadastrar():
+
+    cadastro = Cadastro()
     current_time = datetime.now(timezone.utc)
     user_IP = fk.request.headers.get('X-Forwarded-For')
     app_host = fk.request.headers.get('Host')
 
-    if main.validate_on_submit():
+    if cadastro.validate_on_submit():
         nomeAntigo = fk.session.get('nome')
-        if nomeAntigo is not None and nomeAntigo != main.nome.data:
+        if nomeAntigo is not None and nomeAntigo != cadastro.nome.data:
             fk.flash("Você alterou o seu nome!")
 
-        fk.session['nome'] = main.nome.data
-        fk.session['sobrenome'] = main.sobrenome.data
-        fk.session['instituicao'] = main.instituicao.data
-        fk.session['disciplina'] = main.disciplina.data
+        fk.session['nome'] = cadastro.nome.data
+        fk.session['sobrenome'] = cadastro.sobrenome.data
+        fk.session['instituicao'] = cadastro.instituicao.data
+        fk.session['disciplina'] = cadastro.disciplina.data
 
-        return fk.redirect(fk.url_for('index'))
+        return fk.redirect(fk.url_for('cadastrar'))
 
-    return fk.render_template('index.html',
+    return fk.render_template('cadastro.html',
                               current_time=current_time,
-                              main=main,
+                              cadastro=cadastro,
                               nome=fk.session.get('nome'),
                               sobrenome=fk.session.get('sobrenome'),
                               instituicao=fk.session.get('instituicao'),

@@ -13,6 +13,8 @@ from flask_migrate import Migrate
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = fk.Flask(__name__)
+
+# COnfigurações do aplicativo
 app.config['SECRET_KEY'] = 'they never gonna find out'
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
@@ -43,9 +45,6 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
-# Chave Secreta
-app.config['SECRET_KEY'] = 'Chave forte'
 
 # Formularios Flask
 class Formulario(FlaskForm):
@@ -78,9 +77,9 @@ class Cadastro(FlaskForm):
     enviar = wf.SubmitField('Submit')
 
 class Main(FlaskForm):
-    nome = wf.StringField('What is your name?', validators=[wtv.DataRequired()])
+    nome = wf.StringField('Qual é o seu nome?', validators=[wtv.DataRequired()], render_kw={"placeholder": "Escreva seu nome aqui"})
 
-    enviar = wf.SubmitField('Submit')
+    enviar = wf.SubmitField('Enviar')
 
 
 # Rota Principal
@@ -93,7 +92,8 @@ def index():
         user = User.query.filter_by(username=main.nome.data).first()
 
         if user is None:
-            user = User(username=main.nome.data)
+            role = Role.query.filter_by(name='User').first()
+            user = User(username=main.nome.data, role=role)
             db.session.add(user)
             db.session.commit()
             fk.session['nome'] = main.nome.data
@@ -105,7 +105,14 @@ def index():
             
         return fk.redirect(fk.url_for('index'))
 
-    return fk.render_template('index.html', nome=fk.session.get('nome'), known=fk.session.get('known'), main=main)
+    users = User.query.all()
+
+    return fk.render_template('index.html',
+                              nome=fk.session.get('nome'),
+                              known=fk.session.get('known'),
+                              main=main,
+                              users=users)
+
 
 # Cadastro
 @app.route('/cadastro', methods=['GET', 'POST'])

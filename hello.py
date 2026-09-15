@@ -9,6 +9,7 @@ from flask_wtf import FlaskForm
 from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from sqlalchemy import func
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -79,6 +80,12 @@ class Cadastro(FlaskForm):
 class Main(FlaskForm):
     nome = wf.StringField('Qual é o seu nome?', validators=[wtv.DataRequired()], render_kw={"placeholder": "Escreva seu nome aqui"})
 
+    funcao = wf.SelectField(
+        "Qual é a sua função (Role)?",
+        choices=[('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')],
+        validators=[wtv.DataRequired()]
+    )
+
     enviar = wf.SubmitField('Enviar')
 
 
@@ -90,28 +97,40 @@ def index():
 
     if main.validate_on_submit():
         user = User.query.filter_by(username=main.nome.data).first()
+        role_name = main.funcao.data
+        role = Role.query.filter_by(name=role_name).first()
+
+        if role is None:
+            role = Role(name=role_name)
+            db.session.add(role)
+            db.session.commit()
 
         if user is None:
-            role = Role.query.filter_by(name='User').first()
             user = User(username=main.nome.data, role=role)
             db.session.add(user)
             db.session.commit()
             fk.session['nome'] = main.nome.data
             fk.session['known'] = False
-            
+
         else:
             fk.session['nome'] = main.nome.data
             fk.session['known'] = True
-            
+
         return fk.redirect(fk.url_for('index'))
 
     users = User.query.all()
+    roles = Role.query.all()
+    users_count = db.session.query(func.count(User.id)).scalar()
+    roles_count = db.session.query(func.count(Role.id)).scalar()
 
     return fk.render_template('index.html',
                               nome=fk.session.get('nome'),
                               known=fk.session.get('known'),
                               main=main,
-                              users=users)
+                              users=users,
+                              roles=roles,
+                              users_count=users_count,
+                              roles_count=roles_count)
 
 
 # Cadastro

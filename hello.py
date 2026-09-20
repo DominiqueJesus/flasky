@@ -14,9 +14,8 @@ from dotenv import load_dotenv
 import requests
 
 # Definições os.path
-project_folder = os.path.expanduser('~/flasky') 
-load_dotenv(os.path.join(project_folder, '.env'))
 basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
 
 app = fk.Flask(__name__)
 

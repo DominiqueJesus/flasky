@@ -10,16 +10,27 @@ from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import func
+from dotenv import load_dotenv
+import requests
 
+# Definições os.path
+project_folder = os.path.expanduser('~/flasky') 
+load_dotenv(os.path.join(project_folder, '.env'))
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = fk.Flask(__name__)
 
-# COnfigurações do aplicativo
-app.config['SECRET_KEY'] = 'they never gonna find out'
+# Configurações do aplicativo
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+app.config['API_URL'] = os.environ.get("API_URL")
+app.config['API_KEY'] = os.environ.get("API_KEY")
+app.config['API_FROM'] = os.environ.get("API_FROM")
+app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = "[Flasky]"
+app.config['FLASKY_ADMIN'] = os.environ.get("FLASKY_ADMIN")
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
@@ -80,13 +91,24 @@ class Cadastro(FlaskForm):
 class Main(FlaskForm):
     nome = wf.StringField('Qual é o seu nome?', validators=[wtv.DataRequired()], render_kw={"placeholder": "Escreva seu nome aqui"})
 
-    funcao = wf.SelectField(
+    '''funcao = wf.SelectField(
         "Qual é a sua função (Role)?",
         choices=[('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')],
         validators=[wtv.DataRequired()]
-    )
+    )'''
 
     enviar = wf.SubmitField('Enviar')
+
+# E-mail
+def send_mail():
+    return requests.post(
+        "https://api.mailgun.net/v3/sandboxc66ecaaceb3f44e19747b00fe7388000.mailgun.org/messages",
+        auth=("api", os.getenv('API_KEY')),
+        data={"from": "Mailgun Sandbox <postmaster@sandboxc66ecaaceb3f44e19747b00fe7388000.mailgun.org>",
+			"to": "DOMINIQUE EDUARDA SILVA DE JESUS <dominique.jesus@aluno.ifsp.edu.br>",
+  			"subject": "Hello DOMINIQUE EDUARDA SILVA DE JESUS",
+  			"text": "Congratulations DOMINIQUE EDUARDA SILVA DE JESUS, you just sent an email with Mailgun! You are truly awesome!"}
+    )
 
 
 # Rota Principal
@@ -97,16 +119,18 @@ def index():
 
     if main.validate_on_submit():
         user = User.query.filter_by(username=main.nome.data).first()
-        role_name = main.funcao.data
-        role = Role.query.filter_by(name=role_name).first()
+        #role_name = main.funcao.data
+        #role = Role.query.filter_by(name=role_name).first()
 
-        if role is None:
+        '''if role is None:
             role = Role(name=role_name)
             db.session.add(role)
-            db.session.commit()
+            db.session.commit()'''
 
         if user is None:
-            user = User(username=main.nome.data, role=role)
+            user = User(username=main.nome.data) #, role=role)
+            send_mail()
+
             db.session.add(user)
             db.session.commit()
             fk.session['nome'] = main.nome.data
@@ -119,18 +143,19 @@ def index():
         return fk.redirect(fk.url_for('index'))
 
     users = User.query.all()
-    roles = Role.query.all()
+    #roles = Role.query.all()
     users_count = db.session.query(func.count(User.id)).scalar()
-    roles_count = db.session.query(func.count(Role.id)).scalar()
+    #roles_count = db.session.query(func.count(Role.id)).scalar()
 
     return fk.render_template('index.html',
                               nome=fk.session.get('nome'),
                               known=fk.session.get('known'),
                               main=main,
                               users=users,
-                              roles=roles,
+                              #roles=roles,
                               users_count=users_count,
-                              roles_count=roles_count)
+                              #roles_count=roles_count
+                              )
 
 
 # Cadastro

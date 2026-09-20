@@ -100,14 +100,16 @@ class Main(FlaskForm):
 
 # E-mail
 def send_mail():
-    return requests.post(
+    response = requests.post(
         "https://api.mailgun.net/v3/sandboxc66ecaaceb3f44e19747b00fe7388000.mailgun.org/messages",
-        auth=("api", os.getenv('API_KEY')),
-        data={"from": "Mailgun Sandbox <postmaster@sandboxc66ecaaceb3f44e19747b00fe7388000.mailgun.org>",
-			"to": "DOMINIQUE EDUARDA SILVA DE JESUS <dominique.jesus@aluno.ifsp.edu.br>",
+        auth=("api", app.config['API_KEY']),
+        data={"from": app.config['API_FROM'],
+			"to": app.config['FLASKY_ADMIN'],
   			"subject": "Hello DOMINIQUE EDUARDA SILVA DE JESUS",
   			"text": "Congratulations DOMINIQUE EDUARDA SILVA DE JESUS, you just sent an email with Mailgun! You are truly awesome!"}
     )
+    response.raise_for_status()
+    return response
 
 
 # Rota Principal

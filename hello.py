@@ -119,15 +119,15 @@ def send_mail(username, name, prontuary):
         auth=("api", app.config['API_KEY']),
         data={"from": app.config['API_FROM'],
 			"to": recipients,
-  			"subject": "Bem-vindo(a) ao Flasky!",
-			"text": f"Olá, {username}! Bem-vindo(a) ao Flasky. Seu prontuário é {prontuary} e seu nome é {name}",
+  			"subject": "Novo usuário adicionado ao Flasky!",
+			"text": f"Olá, {name} ({prontuary})! Foi adicionado um novo usuário ao site Flasky, com o username {username}",
             "html": f"""
                 <html>
                     <body>
-                        <h1>Bem-vindo(a) ao Flasky!</h1>
-                        <p>Olá, <strong>{safe_username}</strong>!</p>
-                        <p>Seu cadastro foi realizado com sucesso.</p>
-                        <h6>Dados do host/aluno:</h6>
+                        <h2>Novo usuário adicionado ao Flasky!</h2>
+                        <p>Olá, <strong>{safe_name}</strong>!</p>
+                        <p>Um novo usuário foi adicionado ao site Flasky, com o username {safe_username}.</p>
+                        <h3>Dados do host/aluno:</h3>
                         <ul>
                             <li>Prontuário: {safe_prontuary}</li>
                             <li>Nome completo: {safe_name}</li>
@@ -159,6 +159,7 @@ def index():
         if user is None:
             user = User(username=main.nome.data) #, role=role)
             send_mail(main.nome.data, "PT3036472", "DOMINIQUE EDUARDA SILVA DE JESUS")
+            fk.flash('Seu cadastro foi efetuado com sucesso!')
 
             db.session.add(user)
             db.session.commit()

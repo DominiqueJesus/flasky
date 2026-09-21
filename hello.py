@@ -7,6 +7,7 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
 from datetime import datetime, timezone
+from html import escape
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import func
@@ -26,6 +27,7 @@ app.config['API_KEY'] = os.environ.get("API_KEY")
 app.config['API_FROM'] = os.environ.get("API_FROM")
 app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = "[Flasky]"
 app.config['FLASKY_ADMIN'] = os.environ.get("FLASKY_ADMIN")
+app.config['MAIL_RECIPIENT'] = os.environ.get("MAIL_RECIPIENT")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] =\
@@ -99,14 +101,40 @@ class Main(FlaskForm):
     enviar = wf.SubmitField('Enviar')
 
 # E-mail
-def send_mail():
+def send_mail(username, name, prontuary):
+    recipients = [
+        address
+        for address in (
+            app.config['FLASKY_ADMIN'],
+            app.config['MAIL_RECIPIENT']
+        )
+        if address
+    ]
+    safe_username = escape(username)
+    safe_prontuary = escape(prontuary)
+    safe_name = escape(name)
+
     response = requests.post(
         "https://api.mailgun.net/v3/sandboxc66ecaaceb3f44e19747b00fe7388000.mailgun.org/messages",
         auth=("api", app.config['API_KEY']),
         data={"from": app.config['API_FROM'],
-			"to": app.config['FLASKY_ADMIN'],
-  			"subject": "Hello DOMINIQUE EDUARDA SILVA DE JESUS",
-  			"text": "Congratulations DOMINIQUE EDUARDA SILVA DE JESUS, you just sent an email with Mailgun! You are truly awesome!"}
+			"to": recipients,
+  			"subject": "Bem-vindo(a) ao Flasky!",
+			"text": f"Olá, {username}! Bem-vindo(a) ao Flasky. Seu prontuário é {prontuary} e seu nome é {name}",
+            "html": f"""
+                <html>
+                    <body>
+                        <h1>Bem-vindo(a) ao Flasky!</h1>
+                        <p>Olá, <strong>{safe_username}</strong>!</p>
+                        <p>Seu cadastro foi realizado com sucesso.</p>
+                        <h6>Dados do host/aluno:</h6>
+                        <ul>
+                            <li>Prontuário: {safe_prontuary}</li>
+                            <li>Nome completo: {safe_name}</li>
+                        </ul>
+                    </body>
+                </html>
+            """}
     )
     response.raise_for_status()
     return response
@@ -130,7 +158,7 @@ def index():
 
         if user is None:
             user = User(username=main.nome.data) #, role=role)
-            send_mail()
+            send_mail(main.nome.data, "PT3036472", "DOMINIQUE EDUARDA SILVA DE JESUS")
 
             db.session.add(user)
             db.session.commit()

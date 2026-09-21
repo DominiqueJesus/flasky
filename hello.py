@@ -158,7 +158,7 @@ def index():
 
         if user is None:
             user = User(username=main.nome.data) #, role=role)
-            send_mail(main.nome.data, "PT3036472", "DOMINIQUE EDUARDA SILVA DE JESUS")
+            send_mail(main.nome.data, "DOMINIQUE EDUARDA SILVA DE JESUS",  "PT3036472")
             fk.flash('Seu cadastro foi efetuado com sucesso!')
 
             db.session.add(user)

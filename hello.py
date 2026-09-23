@@ -155,6 +155,21 @@ def index():
             user = User(username=main.nome.data, role=role)
             fk.flash('Seu cadastro foi efetuado com sucesso!')
 
+            if main.opcaoEmail.data is True:
+                recipients = [
+                                address
+                                for address in (
+                                    app.config['FLASKY_ADMIN'],
+                                    app.config['MAIL_RECIPIENT']
+                                )
+                                if address
+                            ]
+            
+            else:
+                recipients = app.config['FLASKY_ADMIN']
+            
+            send_mail(main.nome.data, recipients)
+
             db.session.add(user)
             db.session.commit()
             fk.session['nome'] = main.nome.data
@@ -163,21 +178,6 @@ def index():
         else:
             fk.session['nome'] = main.nome.data
             fk.session['known'] = True
-
-        if main.opcaoEmail.data is True:
-            recipients = [
-                    address
-                    for address in (
-                        app.config['FLASKY_ADMIN'],
-                        app.config['MAIL_RECIPIENT']
-                    )
-                    if address
-                ]
-
-        else:
-            recipients = app.config['FLASKY_ADMIN']
-
-        send_mail(main.nome.data, recipients)
 
         return fk.redirect(fk.url_for('index'))
 

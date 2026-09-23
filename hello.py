@@ -27,6 +27,8 @@ app.config['API_KEY'] = os.environ.get("API_KEY")
 app.config['API_FROM'] = os.environ.get("API_FROM")
 app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = "[Flasky]"
 app.config['FLASKY_ADMIN'] = os.environ.get("FLASKY_ADMIN")
+app.config['FLASKY_ADMIN_NAME'] = os.environ.get("FLASKY_ADMIN_NAME")
+app.config['FLASKY_ADMIN_ID'] = os.environ.get("FLASKY_ADMIN_ID")
 app.config['MAIL_RECIPIENT'] = os.environ.get("MAIL_RECIPIENT")
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -92,6 +94,8 @@ class Cadastro(FlaskForm):
 class Main(FlaskForm):
     nome = wf.StringField('Qual é o seu nome?', validators=[wtv.DataRequired()], render_kw={"placeholder": "Escreva seu nome aqui"})
 
+    opcaoEmail = wf.BooleanField('Deseja enviar e-mail para flaskaulasweb@zohomail.com?')
+
     '''funcao = wf.SelectField(
         "Qual é a sua função (Role)?",
         choices=[('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')],
@@ -101,18 +105,9 @@ class Main(FlaskForm):
     enviar = wf.SubmitField('Enviar')
 
 # E-mail
-def send_mail(username, name, prontuary):
-    recipients = [
-        address
-        for address in (
-            app.config['FLASKY_ADMIN'],
-            app.config['MAIL_RECIPIENT']
-        )
-        if address
-    ]
+def send_mail(username, recipients):
+    
     safe_username = escape(username)
-    safe_prontuary = escape(prontuary)
-    safe_name = escape(name)
 
     response = requests.post(
         "https://api.mailgun.net/v3/sandboxc66ecaaceb3f44e19747b00fe7388000.mailgun.org/messages",
@@ -120,17 +115,17 @@ def send_mail(username, name, prontuary):
         data={"from": app.config['API_FROM'],
 			"to": recipients,
   			"subject": "Novo usuário adicionado ao Flasky!",
-			"text": f"Olá, {name} ({prontuary})! Foi adicionado um novo usuário ao site Flasky, com o username {username}",
+            "text": f"Olá, {app.config['FLASKY_ADMIN_NAME']} ({app.config['FLASKY_ADMIN_ID']})! Foi adicionado um novo usuário ao site Flasky, com o username {safe_username}",
             "html": f"""
                 <html>
                     <body>
                         <h2>Novo usuário adicionado ao Flasky!</h2>
-                        <p>Olá, <strong>{safe_name}</strong>!</p>
-                        <p>Um novo usuário foi adicionado ao site Flasky, com o username {safe_username}.</p>
+                        <p>Olá, <strong>{app.config['FLASKY_ADMIN_NAME']}</strong>!</p>
+                        <p>Um novo usuário foi adicionado ao site Flasky, com o username <strong>{safe_username}</strong>.</p>
                         <h3>Dados do host/aluno:</h3>
                         <ul>
-                            <li>Prontuário: {safe_prontuary}</li>
-                            <li>Nome completo: {safe_name}</li>
+                            <li>Prontuário: {app.config['FLASKY_ADMIN_ID']}</li>
+                            <li>Nome completo: {app.config['FLASKY_ADMIN_NAME']}</li>
                         </ul>
                     </body>
                 </html>
@@ -149,7 +144,7 @@ def index():
     if main.validate_on_submit():
         user = User.query.filter_by(username=main.nome.data).first()
         #role_name = main.funcao.data
-        #role = Role.query.filter_by(name=role_name).first()
+        role = Role.query.filter_by(name="User").first()
 
         '''if role is None:
             role = Role(name=role_name)
@@ -157,8 +152,7 @@ def index():
             db.session.commit()'''
 
         if user is None:
-            user = User(username=main.nome.data) #, role=role)
-            send_mail(main.nome.data, "DOMINIQUE EDUARDA SILVA DE JESUS",  "PT3036472")
+            user = User(username=main.nome.data, role=role)
             fk.flash('Seu cadastro foi efetuado com sucesso!')
 
             db.session.add(user)
@@ -169,6 +163,21 @@ def index():
         else:
             fk.session['nome'] = main.nome.data
             fk.session['known'] = True
+
+        if main.opcaoEmail.data is True:
+            recipients = [
+                    address
+                    for address in (
+                        app.config['FLASKY_ADMIN'],
+                        app.config['MAIL_RECIPIENT']
+                    )
+                    if address
+                ]
+
+        else:
+            recipients = app.config['FLASKY_ADMIN']
+
+        send_mail(main.nome.data, recipients)
 
         return fk.redirect(fk.url_for('index'))
 

@@ -122,7 +122,7 @@ def send_mail(username, recipients):
                         <h2>Novo usuário adicionado ao Flasky!</h2>
                         <p>Olá, <strong>{app.config['FLASKY_ADMIN_NAME']}</strong>!</p>
                         <p>Um novo usuário foi adicionado ao site Flasky, com o username <strong>{safe_username}</strong>.</p>
-                        <h3>Dados do host/aluno:</h3>
+                        <h3>Dados do aluno:</h3>
                         <ul>
                             <li>Prontuário: {app.config['FLASKY_ADMIN_ID']}</li>
                             <li>Nome completo: {app.config['FLASKY_ADMIN_NAME']}</li>

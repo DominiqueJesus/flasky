@@ -21,8 +21,8 @@
         <tbody>
             {% for email in emails %}
                 <tr>
-                    <td>{{ email.remetente }}</td>
-                    <td>{{ email.destinatario }}</td>
+                    <td>{{ email.remetente | join(', ') if email.remetente else '-' }}</td>
+                    <td>{{ email.destinatario | join(', ') if email.destinatario else '-' }}</td>
                     <td>{{ email.assunto }}</td>
                     <td>{{ email.texto }}</td>
                     <td>{{ email.dataHora }}</td>

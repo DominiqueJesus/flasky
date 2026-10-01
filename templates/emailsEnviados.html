@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+    <div class="page-header">
+        <h1>E-mails enviados</h1>
+    </div>
+
+    <table class="table table-striped table-hover align-middle m-0">
+        <thead>
+            <tr>
+                <th>De</th>
+                <th>Para</th>
+                <th>Assunto</th>
+                <th>Texto</th>
+                <th>Data/Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email in emails %}
+                <tr>
+                    <td>{{ email.remetente }}</td>
+                    <td>{{ email.destinatario }}</td>
+                    <td>{{ email.assunto }}</td>
+                    <td>{{ email.texto }}</td>
+                    <td>{{ email.dataHora }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+

@@ -60,6 +60,24 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
+class emailsEnviados(db.Model):
+    __tablename__ = 'emails'
+    id = db.Column(db.Integer, primary_key=True)
+    remetente = db.Column(db.JSON, nullable=False, default=list)
+    destinatario = db.Column(db.JSON, nullable=False, default=list)
+    assunto = db.Column(db.String(100), nullable=False)
+    texto = db.Column(db.String(100), nullable=False)
+    dataHora = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.now(timezone.utc))
+
+    def __repr__(self):
+        return (
+            f'<DE: {self.remetente!r} PARA: {self.destinatario!r} '
+            f'ASSUNTO: {self.assunto!r} ENVIADO EM: {self.dataHora!r}>'
+        )
+
+
+EmailsEnviados = emailsEnviados
+
 
 # Formularios Flask
 class Formulario(FlaskForm):
@@ -106,16 +124,23 @@ class Main(FlaskForm):
 
 # E-mail
 def send_mail(username, recipients):
-    
+
     safe_username = escape(username)
+    destinatarios = recipients if isinstance(recipients, list) else [recipients]
+    assunto = "Novo usuário adicionado ao Flasky!"
+    texto = (
+        f"Olá, {app.config['FLASKY_ADMIN_NAME']} ({app.config['FLASKY_ADMIN_ID']})! "
+        f"Foi adicionado um novo usuário ao site Flasky, com o username {safe_username}"
+    )
 
     response = requests.post(
         "https://api.mailgun.net/v3/sandboxc66ecaaceb3f44e19747b00fe7388000.mailgun.org/messages",
         auth=("api", app.config['API_KEY']),
-        data={"from": app.config['API_FROM'],
-			"to": recipients,
-  			"subject": "Novo usuário adicionado ao Flasky!",
-            "text": f"Olá, {app.config['FLASKY_ADMIN_NAME']} ({app.config['FLASKY_ADMIN_ID']})! Foi adicionado um novo usuário ao site Flasky, com o username {safe_username}",
+        data={
+            "from": app.config['API_FROM'],
+            "to": destinatarios,
+            "subject": assunto,
+            "text": texto,
             "html": f"""
                 <html>
                     <body>
@@ -129,10 +154,22 @@ def send_mail(username, recipients):
                         </ul>
                     </body>
                 </html>
-            """}
+            """
+        }
     )
     response.raise_for_status()
+
+    email = emailsEnviados(
+        remetente=[app.config['API_FROM']],
+        destinatario=destinatarios,
+        assunto=assunto,
+        texto=texto,
+    )
+    db.session.add(email)
+    db.session.commit()
+
     return response
+
 
 
 # Rota Principal
@@ -196,6 +233,13 @@ def index():
                               #roles_count=roles_count
                               )
 
+#Emails enviados
+@app.route('/emailsEnviados')
+def listarEmails():
+
+    emails = emailsEnviados.query.order_by(emailsEnviados.dataHora.desc()).all()
+
+    return fk.render_template('emailsEnviados.html', emails=emails)
 
 # Cadastro
 @app.route('/cadastro', methods=['GET', 'POST'])

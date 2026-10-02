@@ -158,7 +158,7 @@ def send_mail(username, recipients):
     response.raise_for_status()
 
     email = emailsEnviados(
-        remetente=safe_username,
+        remetente=safe_username if isinstance(safe_username, list) else [safe_username],
         destinatario=destinatarios,
         assunto=assunto,
         texto=texto

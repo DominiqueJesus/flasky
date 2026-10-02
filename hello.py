@@ -1,4 +1,5 @@
 import os
+import requests
 import flask as fk
 import wtforms as wf
 import wtforms.validators as wtv
@@ -7,12 +8,12 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
 from datetime import datetime, timezone
-from html import escape
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from sqlalchemy import func
+
+from html import escape
 from dotenv import load_dotenv
-import requests
+from sqlalchemy import func
 
 # Definições os.path
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -30,7 +31,6 @@ app.config['FLASKY_ADMIN'] = os.environ.get("FLASKY_ADMIN")
 app.config['FLASKY_ADMIN_NAME'] = os.environ.get("FLASKY_ADMIN_NAME")
 app.config['FLASKY_ADMIN_ID'] = os.environ.get("FLASKY_ADMIN_ID")
 app.config['MAIL_RECIPIENT'] = os.environ.get("MAIL_RECIPIENT")
-
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'data.sqlite')
@@ -50,7 +50,6 @@ class Role(db.Model):
     def __repr__(self):
         return '<Role %r>' % self.name
 
-
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
@@ -66,15 +65,14 @@ class emailsEnviados(db.Model):
     remetente = db.Column(db.JSON, nullable=False, default=list)
     destinatario = db.Column(db.JSON, nullable=False, default=list)
     assunto = db.Column(db.String(100), nullable=False)
-    texto = db.Column(db.String(100), nullable=False)
-    dataHora = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.now(timezone.utc))
+    texto = db.Column(db.String(500), nullable=False)
+    dataHora = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=0))
 
     def __repr__(self):
         return (
             f'<DE: {self.remetente!r} PARA: {self.destinatario!r} '
             f'ASSUNTO: {self.assunto!r} ENVIADO EM: {self.dataHora!r}>'
         )
-
 
 EmailsEnviados = emailsEnviados
 
@@ -92,7 +90,6 @@ class Login(FlaskForm):
                              render_kw={"placeholder": "Informe a sua senha"}
                             )
     enviar = wf.SubmitField('Enviar')
-
 
 class Cadastro(FlaskForm):
     nome = wf.StringField("Informe o seu nome:", validators=[wtv.DataRequired()])
@@ -114,11 +111,12 @@ class Main(FlaskForm):
 
     opcaoEmail = wf.BooleanField('Deseja enviar e-mail para flaskaulasweb@zohomail.com?')
 
-    '''funcao = wf.SelectField(
+    '''
+        funcao = wf.SelectField(
         "Qual é a sua função (Role)?",
         choices=[('Administrator', 'Administrator'), ('Moderator', 'Moderator'), ('User', 'User')],
-        validators=[wtv.DataRequired()]
-    )'''
+        validators=[wtv.DataRequired()])
+    '''
 
     enviar = wf.SubmitField('Enviar')
 
@@ -160,17 +158,17 @@ def send_mail(username, recipients):
     response.raise_for_status()
 
     email = emailsEnviados(
-        remetente=[app.config['API_FROM']],
+        remetente=safe_username,
         destinatario=destinatarios,
         assunto=assunto,
-        texto=texto,
+        texto=texto
     )
     db.session.add(email)
     db.session.commit()
 
     return response
 
-
+# CAMINHOS DO SITE
 
 # Rota Principal
 @app.route('/', methods=['GET', 'POST'])
@@ -190,7 +188,6 @@ def index():
 
         if user is None:
             user = User(username=main.nome.data, role=role)
-            fk.flash('Seu cadastro foi efetuado com sucesso!')
 
             if main.opcaoEmail.data is True:
                 recipients = [
@@ -312,13 +309,11 @@ def forms():
 
     return fk.render_template('formulario.html', nome=fk.session.get('nome'), form=form)
 
-
 # Rota dinâmica
 @app.route('/user/<name>/<prontuario>/<instituicao>')
 def hello_user(name, prontuario, instituicao):
 
     return fk.render_template('user.html', name=name, prontuario=prontuario, instituicao=instituicao)
-
 
 # Contexto da requisição
 @app.route('/contextorequisicao/<name>')
@@ -336,13 +331,11 @@ def requisicao_ctx(name):
             app_host=app_host
         )
 
-
 # Código de status do servidor
 @app.route('/codigostatusdiferente')
 def requisicao_indevida():
 
     return '<p>Bad request</p>', 400
-
 
 # Criar objeto de resposta
 @app.route('/objetoresposta')
@@ -354,13 +347,11 @@ def obj_resposta():
 
     return myobj
 
-
 # Redirecionar para outro site
 @app.route('/redirecionamento')
 def redirecionar():
 
     return fk.redirect('https://ptb.ifsp.edu.br/')
-
 
 # Abortar função de view
 @app.route('/abortar')

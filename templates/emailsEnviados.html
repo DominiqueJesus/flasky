@@ -25,7 +25,7 @@
                     <td>{{ email.destinatario | join(', ') if email.destinatario else '-' }}</td>
                     <td>{{ email.assunto }}</td>
                     <td>{{ email.texto }}</td>
-                    <td>{{ email.dataHora }}</td>
+                    <td>{{ email.dataHora.strftime('%d/%m/%Y %H:%M:%S') }}</td>
                 </tr>
             {% endfor %}
         </tbody>

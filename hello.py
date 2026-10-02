@@ -7,7 +7,7 @@ import wtforms.validators as wtv
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
@@ -39,6 +39,15 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+@app.template_filter('br_datetime')
+def format_br_datetime(value):
+    if value is None:
+        return '-'
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    brasilia_timezone = timezone(timedelta(hours=-3))
+    return value.astimezone(brasilia_timezone).strftime('%d/%m/%Y %H:%M:%S')
 
 # Tabelas BD
 class Role(db.Model):

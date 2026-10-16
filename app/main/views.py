@@ -3,10 +3,11 @@ import flask as fk
 from . import main
 from .. import db
 from .forms import Formulario, Login, Cadastro, Main
-from ..models.User import User
-from ..models.Role import Role
-from ..models.Email import Email, send_mail
+from ..models import User, Role, Email
+from ..email import send_mail
 from sqlalchemy import func
+
+app_config = fk.current_app.config
 
 # CAMINHOS DO SITE
 
@@ -18,8 +19,8 @@ def index():
 
     if main.validate_on_submit():
         user = User.query.filter_by(username=main.nome.data).first()
-        #role_name = main.funcao.data
         role = Role.query.filter_by(name="User").first()
+        #role_name = main.funcao.data
 
         '''if role is None:
             role = Role(name=role_name)
@@ -28,7 +29,6 @@ def index():
 
         if user is None:
             user = User(username=main.nome.data, role=role)
-            app_config = fk.current_app.config
 
             '''if main.opcaoEmail.data is True:'''
             recipients = [
@@ -43,20 +43,19 @@ def index():
             '''else:
                 recipients = app_config.get('FLASKY_ADMIN')'''
             
-            send_mail(main.nome.data, recipients)
-
             db.session.add(user)
             db.session.commit()
             fk.session['nome'] = main.nome.data
             fk.session['known'] = False
 
+            send_mail(main.nome.data, recipients)
             fk.flash("Novo usuário cadastrado com sucesso!")
 
         else:
             fk.session['nome'] = main.nome.data
             fk.session['known'] = True
 
-        return fk.redirect(fk.url_for('index'))
+        return fk.redirect(fk.url_for('.index'))
 
     users = User.query.all()
     #roles = Role.query.all()

@@ -1,25 +1,8 @@
-from .. import db
-from datetime import datetime, timezone, timedelta
+from . import db
+from models import Email
 from html import escape
 from flask import current_app
 import requests
-
-class Email(db.Model):
-    __tablename__ = 'emails'
-    id = db.Column(db.Integer, primary_key=True)
-    remetente = db.Column(db.JSON, nullable=False, default=list)
-    destinatario = db.Column(db.JSON, nullable=False, default=list)
-    assunto = db.Column(db.String(100), nullable=False)
-    texto = db.Column(db.String(500), nullable=False)
-    dataHora = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc).replace(microsecond=0))
-
-    def __repr__(self):
-        return (
-            f'<DE: {self.remetente!r} PARA: {self.destinatario!r} '
-            f'ASSUNTO: {self.assunto!r} ENVIADO EM: {self.dataHora!r}>'
-        )
-
-email = Email
 
 # Enviar E-mail
 def send_mail(username, recipients):

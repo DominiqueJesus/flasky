@@ -1,5 +1,5 @@
 from . import db
-from models import Email
+from .models import Email
 from html import escape
 from flask import current_app
 import requests

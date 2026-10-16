@@ -7,8 +7,6 @@ from ..models import User, Role, Email
 from ..email import send_mail
 from sqlalchemy import func
 
-app_config = fk.current_app.config
-
 # CAMINHOS DO SITE
 
 # Rota Principal
@@ -29,6 +27,8 @@ def index():
 
         if user is None:
             user = User(username=main.nome.data, role=role)
+
+            app_config = fk.current_app.config
 
             '''if main.opcaoEmail.data is True:'''
             recipients = [

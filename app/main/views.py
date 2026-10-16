@@ -50,6 +50,8 @@ def index():
             fk.session['nome'] = main.nome.data
             fk.session['known'] = False
 
+            fk.flash("Novo usuário cadastrado com sucesso!")
+
         else:
             fk.session['nome'] = main.nome.data
             fk.session['known'] = True

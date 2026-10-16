@@ -30,18 +30,18 @@ def index():
             user = User(username=main.nome.data, role=role)
             app_config = fk.current_app.config
 
-            if main.opcaoEmail.data is True:
-                recipients = [
-                                address
+            '''if main.opcaoEmail.data is True:'''
+            recipients = [
+                            address
                                 for address in (
                                     app_config.get('FLASKY_ADMIN'),
                                     app_config.get('MAIL_RECIPIENT')
                                 )
                                 if address
-                            ]
+            ]
             
-            else:
-                recipients = app_config.get('FLASKY_ADMIN')
+            '''else:
+                recipients = app_config.get('FLASKY_ADMIN')'''
             
             send_mail(main.nome.data, recipients)
 

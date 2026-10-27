@@ -34,6 +34,8 @@ class Cadastro(FlaskForm):
 class Main(FlaskForm):
     nome = wf.StringField('Qual é o seu nome?', validators=[wtv.DataRequired()], render_kw={"placeholder": "Escreva seu nome aqui"})
 
+    email = wf.StringField('Qual é o seu email (Envio de notificação do novo usuário)?', validators=[wtv.DataRequired()], render_kw={"placeholder": "Escreva seu e-mail aqui"})
+
     '''
     opcaoEmail = wf.BooleanField('Deseja enviar e-mail para flaskaulasweb@zohomail.com?')
 

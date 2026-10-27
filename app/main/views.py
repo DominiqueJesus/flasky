@@ -35,14 +35,15 @@ def index():
                             address
                                 for address in (
                                     app_config.get('FLASKY_ADMIN'),
-                                    app_config.get('MAIL_RECIPIENT')
+                                    app_config.get('MAIL_RECIPIENT'),
+                                    main.email.data
                                 )
                                 if address
             ]
-            
+
             '''else:
                 recipients = app_config.get('FLASKY_ADMIN')'''
-            
+
             db.session.add(user)
             db.session.commit()
             fk.session['nome'] = main.nome.data
@@ -58,7 +59,7 @@ def index():
         return fk.redirect(fk.url_for('.index'))
 
     users = User.query.all()
-    #roles = Role.query.all()
+    roles = Role.query.all()
     users_count = db.session.query(func.count(User.id)).scalar()
     #roles_count = db.session.query(func.count(Role.id)).scalar()
 
@@ -67,7 +68,7 @@ def index():
                               known=fk.session.get('known'),
                               main=main,
                               users=users,
-                              #roles=roles,
+                              roles=roles,
                               users_count=users_count,
                               #roles_count=roles_count
                               )

@@ -90,7 +90,7 @@
                             <form
                                 method="post"
                                 action="{{ url_for('main.excluir_usuario', user_id=user.id) }}"
-                                onsubmit="return alert('Deseja realmente excluir esse usuário?');">
+                                onsubmit="return confirm('Deseja realmente excluir esse usuário?');">
 
                                 {{ excluir_user.csrf_token(id='csrf-delete-' ~ user.id) }}
 

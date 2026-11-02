@@ -49,3 +49,6 @@ class Main(FlaskForm):
 
 class Editar_Usuario(FlaskForm):
     username = wf.StringField(validators=[wfv.DataRequired(), wfv.Length(max=64)])
+
+class Excluir_Usuario(FlaskForm):
+    pass

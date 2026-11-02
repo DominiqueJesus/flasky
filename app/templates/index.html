@@ -47,13 +47,13 @@
                 {% for user in users %}
                     <tr>
                         <td>
-                            <div id="user-display-{{ user.id }}" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <div id="user-display-{{ user.id }}" style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
 
                                 <span id="username-{{ user.id }}">
                                     {{ user.username }}
                                 </span>
 
-                                <button type="button" class="btn btn-default" onclick="startEdit(user.id)">
+                                <button type="button" class="btn btn-default" onclick="startEdit({{ user.id }})">
                                     Editar
                                 </button>
 
@@ -74,7 +74,7 @@
                                         maxlength="64"
                                         required>
 
-                                    <button type="button" class="btn btn-default" onclick="cancelEdit(user.id)">
+                                    <button type="button" class="btn btn-default" onclick="cancelEdit({{ user.id }})">
                                         Cancelar
                                     </button>
 
@@ -86,7 +86,19 @@
                             </div>
                         </td>
                         <td>{{ user.role.name if user.role else 'Sem função' }}</td>
-                        <td><button class="btn btn-danger">Excluir</button></td>
+                        <td>
+                            <form
+                                method="post"
+                                action="{{ url_for('main.excluir_usuario', user_id=user.id) }}"
+                                onsubmit="return alert('Deseja realmente excluir esse usuário?');">
+
+                                {{ excluir_user.csrf_token(id='csrf-delete-' ~ user.id) }}
+
+                                <button type="submit" class="btn btn-danger">
+                                    Excluir
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -130,6 +142,7 @@
         </table>
 
     </div>
+-->
 
 {% endblock %}
--->
+

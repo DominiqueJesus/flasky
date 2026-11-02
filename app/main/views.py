@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import flask as fk
 from . import main
 from .. import db
-from .forms import Formulario, Login, Cadastro, Main, Editar_Usuario
+from .forms import Formulario, Login, Cadastro, Main, Editar_Usuario, Excluir_Usuario
 from ..models import User, Role, Email
 from ..email import send_mail
 from sqlalchemy import func
@@ -15,6 +15,7 @@ def index():
 
     main = Main()
     editar_nome = Editar_Usuario()
+    excluir_user = Excluir_Usuario()
 
     if main.validate_on_submit():
         user = User.query.filter_by(username=main.nome.data).first()
@@ -71,7 +72,8 @@ def index():
                               users=users,
                               roles=roles,
                               users_count=users_count,
-                              editar_nome=editar_nome
+                              editar_nome=editar_nome,
+                              excluir_user=excluir_user
                               #roles_count=roles_count
                               )
 
@@ -98,6 +100,23 @@ def editar_usuario(user_id):
     db.session.commit()
 
     fk.flash('Nome do usuário atualizado com sucesso.')
+    return fk.redirect(fk.url_for('.index'))
+
+# Excluir usuário
+@main.route('/usuarios/<int:user_id>/excluir', methods=['POST'])
+def excluir_usuario(user_id):
+
+    excluir_user = Excluir_Usuario()
+
+    if not excluir_user.validate_on_submit():
+        return fk.abort(400)
+
+    user = db.get_or_404(User, user_id)
+
+    db.session.delete(user)
+    db.session.commit()
+
+    fk.flash('Usuário removido com sucesso.')
     return fk.redirect(fk.url_for('.index'))
 
 #Emails enviados

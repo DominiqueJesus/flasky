@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import flask as fk
 from . import main
 from .. import db
-from .forms import Formulario, Login, Cadastro, Main
+from .forms import Formulario, Login, Cadastro, Main, Editar_Usuario
 from ..models import User, Role, Email
 from ..email import send_mail
 from sqlalchemy import func
@@ -14,6 +14,7 @@ from sqlalchemy import func
 def index():
 
     main = Main()
+    editar_nome = Editar_Usuario()
 
     if main.validate_on_submit():
         user = User.query.filter_by(username=main.nome.data).first()
@@ -70,8 +71,34 @@ def index():
                               users=users,
                               roles=roles,
                               users_count=users_count,
+                              editar_nome=editar_nome
                               #roles_count=roles_count
                               )
+
+#Editar usuário
+@main.route('/usuarios/<int:user_id>/editar', methods=['POST'])
+def editar_usuario(user_id):
+
+    editar_nome = Editar_Usuario()
+
+    if not editar_nome.validate_on_submit():
+        return fk.abort(400)
+
+    user = db.get_or_404(User, user_id)
+    novo_username = User.query.filter(
+        User.username==editar_nome.username.data,
+        User.id != user.id
+    ).first()
+
+    if novo_username:
+        fk.flash('Esse nome já está sendo usado.')
+        return fk.redirect(fk.url_for('.index'))
+
+    user.username = editar_nome.username.data
+    db.session.commit()
+
+    fk.flash('Nome do usuário atualizado com sucesso.')
+    return fk.redirect(fk.url_for('.index'))
 
 #Emails enviados
 @main.route('/emailsEnviados')

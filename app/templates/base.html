@@ -1,0 +1,28 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Cadastro de Professores{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="container">
+    <div class="navbar-header"><a class="navbar-brand" href="{{ url_for('main.index') }}">Cadastro Acadêmico</a></div>
+    <ul class="nav navbar-nav">
+      <li><a href="{{ url_for('main.index') }}">Início</a></li>
+      <li><a href="{{ url_for('main.cadastrar_professor') }}">Cadastro de Professores</a></li>
+      <li><a href="{{ url_for('main.index', modulo='alunos') }}">Alunos</a></li>
+      <li><a href="{{ url_for('main.index', modulo='cursos') }}">Cursos</a></li>
+      <li><a href="{{ url_for('main.index', modulo='disciplinas') }}">Disciplinas</a></li>
+      <li><a href="{{ url_for('main.index', modulo='ocorrencias') }}">Ocorrências</a></li>
+    </ul>
+  </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}
+    <div class="alert alert-info">{{ message }}</div>
+  {% endfor %}{% endif %}{% endwith %}
+  {% block page_content %}{% endblock %}
+</div>
+{% endblock %}

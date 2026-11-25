@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% import "bootstrap/wtf.html" as wt %}
+
+{% block page_content %}
+
+    <div class="page-header">
+
+        <h1>Não disponível</h1>
+    
+    </div>
+
+    <div class="page-content">
+
+        <p>A data e hora local é {{moment(current_time).format('LLL') }}.</p>
+
+    </div>
+
+{% endblock %}
+

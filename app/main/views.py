@@ -54,7 +54,7 @@ def cadastrar_professor():
     )
 
 # Rota: Alunos
-@main.route('/alunos', methods=['GET', 'POST'])
+@main.route('/alunos')
 def cadastrar_aluno():
 
     return render_template('nao_disponivel.html')

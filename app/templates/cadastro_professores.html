@@ -10,5 +10,5 @@
     <tbody>{% for professor in professores %}<tr><td>{{ professor.nome }}</td><td>{{ professor.disciplina }}</td></tr>{% else %}<tr><td colspan="2">Nenhum professor cadastrado.</td></tr>{% endfor %}</tbody>
   </table>
 </div>
-<p class="text-muted">Data e hora local: {{ current_time }}</p>
+<p class="text-muted">A data e hora local é {{ current_time }}</p>
 {% endblock %}

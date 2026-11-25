@@ -52,3 +52,28 @@ def cadastrar_professor():
         professores=professores,
         current_time=hora_local(),
     )
+
+# Rota: Alunos
+@main.route('/alunos', methods=['GET', 'POST'])
+def cadastrar_aluno():
+
+    return render_template('nao_disponivel.html')
+
+# Rota: Cursos
+@main.route('/cursos', methods=['GET', 'POST'])
+def cadastrar_curso():
+
+    return render_template('nao_disponivel.html')
+
+# Rota: Disciplinas
+@main.route('/disciplinas', methods=['GET', 'POST'])
+def cadastrar_disciplina():
+
+    return render_template('nao_disponivel.html')
+
+# Rota: Ocorrências
+@main.route('/ocorrencias', methods=['GET', 'POST'])
+def cadastrar_ocorrencia():
+
+    return render_template('nao_disponivel.html')
+

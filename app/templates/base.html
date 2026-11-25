@@ -1,18 +1,17 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Cadastro de Professores{% endblock %}
+{% block title %}Avaliação semestral{% endblock %}
 
 {% block navbar %}
 <nav class="navbar navbar-inverse" role="navigation">
   <div class="container">
-    <div class="navbar-header"><a class="navbar-brand" href="{{ url_for('main.index') }}">Cadastro Acadêmico</a></div>
+    <div class="navbar-header"><a class="navbar-brand" href="{{ url_for('main.index') }}">Avaliação semestral</a></div>
     <ul class="nav navbar-nav">
-      <li><a href="{{ url_for('main.index') }}">Início</a></li>
       <li><a href="{{ url_for('main.cadastrar_professor') }}">Cadastro de Professores</a></li>
-      <li><a href="{{ url_for('main.index', modulo='alunos') }}">Alunos</a></li>
-      <li><a href="{{ url_for('main.index', modulo='cursos') }}">Cursos</a></li>
-      <li><a href="{{ url_for('main.index', modulo='disciplinas') }}">Disciplinas</a></li>
-      <li><a href="{{ url_for('main.index', modulo='ocorrencias') }}">Ocorrências</a></li>
+        <li><a href="{{ url_for('main.cadastrar_aluno', modulo='alunos') }}">Cadastro de Alunos</a></li>
+      <li><a href="{{ url_for('main.cadastrar_curso', modulo='cursos') }}">Cadastro de Cursos</a></li>
+      <li><a href="{{ url_for('main.cadastrar_disciplina', modulo='disciplinas') }}">Cadastro de Disciplinas</a></li>
+      <li><a href="{{ url_for('main.cadastrar_ocorrencia', modulo='ocorrencias') }}">Cadastro de Ocorrências</a></li>
     </ul>
   </div>
 </nav>
